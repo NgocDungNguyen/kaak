@@ -11,8 +11,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -65,15 +66,11 @@ public class CustomerController implements Initializable {
 
     private void loadCustomers() {
         try {
-            System.out.println("Controller: Loading customers");
             List<Customer> customers = customerService.getAllCustomers();
             customerList.clear();
             customerList.addAll(customers);
             customerTable.setItems(customerList);
-            System.out.println("Controller: Loaded " + customers.size() + " customers");
-        } catch (Exception e) {
-            System.err.println("Controller: Error loading customers: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to load customers: " + e.getMessage());
         }
     }
@@ -108,23 +105,20 @@ public class CustomerController implements Initializable {
 
     @FXML
     private void handleAdd() {
+        Customer customer = new Customer();
+        customer.setName(nameField.getText().trim());
+        customer.setPhone(phoneField.getText().trim());
+        customer.setEmail(emailField.getText().trim());
+        customer.setAddress(addressField.getText().trim());
+        customer.setJoinDate(LocalDate.now());
+        customer.setTotalOrders(0);
+
         try {
-            Customer customer = new Customer();
-            customer.setName(nameField.getText().trim());
-            customer.setPhone(phoneField.getText().trim());
-            customer.setEmail(emailField.getText().trim());
-            customer.setAddress(addressField.getText().trim());
-
-            System.out.println("Controller: Adding customer: " + customer);
             customerService.addCustomer(customer);
-            System.out.println("Controller: Customer added successfully");
-
             loadCustomers();
             clearFields();
             AlertUtil.showInformation("Success", "Customer added successfully!");
-        } catch (Exception e) {
-            System.err.println("Controller: Error adding customer: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to add customer: " + e.getMessage());
         }
     }
@@ -137,22 +131,17 @@ public class CustomerController implements Initializable {
             return;
         }
 
+        selectedCustomer.setName(nameField.getText().trim());
+        selectedCustomer.setPhone(phoneField.getText().trim());
+        selectedCustomer.setEmail(emailField.getText().trim());
+        selectedCustomer.setAddress(addressField.getText().trim());
+
         try {
-            selectedCustomer.setName(nameField.getText().trim());
-            selectedCustomer.setPhone(phoneField.getText().trim());
-            selectedCustomer.setEmail(emailField.getText().trim());
-            selectedCustomer.setAddress(addressField.getText().trim());
-
-            System.out.println("Controller: Updating customer: " + selectedCustomer);
             customerService.updateCustomer(selectedCustomer.getId(), selectedCustomer);
-            System.out.println("Controller: Customer updated successfully");
-
             loadCustomers();
             clearFields();
             AlertUtil.showInformation("Success", "Customer updated successfully!");
-        } catch (Exception e) {
-            System.err.println("Controller: Error updating customer: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to update customer: " + e.getMessage());
         }
     }
@@ -165,18 +154,13 @@ public class CustomerController implements Initializable {
             return;
         }
 
-        if (AlertUtil.showConfirmation("Confirm Delete",
-                "Are you sure you want to delete this customer?")) {
+        if (AlertUtil.showConfirmation("Confirm Delete", "Are you sure you want to delete this customer?")) {
             try {
-                System.out.println("Controller: Deleting customer: " + selectedCustomer);
                 customerService.deleteCustomer(selectedCustomer.getId());
-                System.out.println("Controller: Customer deleted successfully");
                 loadCustomers();
                 clearFields();
                 AlertUtil.showInformation("Success", "Customer deleted successfully!");
-            } catch (Exception e) {
-                System.err.println("Controller: Error deleting customer: " + e.getMessage());
-                e.printStackTrace();
+            } catch (SQLException e) {
                 AlertUtil.showError("Error", "Failed to delete customer: " + e.getMessage());
             }
         }
@@ -195,13 +179,9 @@ public class CustomerController implements Initializable {
         boolean ascending = ascendingCheckBox.isSelected();
 
         try {
-            System.out.println("Controller: Searching customers - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
             List<Customer> searchResults = customerService.searchCustomers(query, searchBy, sortBy, ascending);
             customerList.setAll(searchResults);
-            System.out.println("Controller: Search completed, found " + searchResults.size() + " results");
-        } catch (IOException e) {
-            System.err.println("Controller: Error searching customers: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Search Error", "An error occurred while searching for customers: " + e.getMessage());
         }
     }

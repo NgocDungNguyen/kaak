@@ -2,7 +2,7 @@ package com.restaurant.service;
 
 import com.restaurant.dao.OrderDAO;
 import com.restaurant.model.Order;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -16,40 +16,40 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrders() throws IOException {
+    public List<Order> getAllOrders() throws SQLException {
         System.out.println("Service: Getting all orders");
         return orderDAO.findAll();
     }
 
     @Override
-    public Order getOrderById(String id) throws IOException {
+    public Order getOrderById(String id) throws SQLException {
         System.out.println("Service: Getting order by ID: " + id);
         return orderDAO.findById(id);
     }
 
     @Override
-    public void addOrder(Order order) throws IOException {
+    public void addOrder(Order order) throws SQLException {
         System.out.println("Service: Adding order");
         orderDAO.create(order);
         System.out.println("Service: Order added successfully");
     }
 
     @Override
-    public void updateOrder(Order order) throws IOException {
+    public void updateOrder(Order order) throws SQLException {
         System.out.println("Service: Updating order with ID: " + order.getId());
         orderDAO.update(order);
         System.out.println("Service: Order updated successfully");
     }
 
     @Override
-    public void deleteOrder(String id) throws IOException {
+    public void deleteOrder(String id) throws SQLException {
         System.out.println("Service: Deleting order with ID: " + id);
         orderDAO.delete(id);
         System.out.println("Service: Order deleted successfully");
     }
 
     @Override
-    public List<Order> searchOrders(String query, String searchBy, String sortBy, boolean ascending) throws IOException {
+    public List<Order> searchOrders(String query, String searchBy, String sortBy, boolean ascending) throws SQLException {
         System.out.println("Service: Searching orders - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
         List<Order> orders = orderDAO.findAll();
 
@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate) throws IOException {
+    public List<Order> findOrdersByDateRange(LocalDateTime startDate, LocalDateTime endDate) throws SQLException {
         System.out.println("Service: Finding orders by date range: " + startDate + " - " + endDate);
         return orderDAO.findAll().stream()
                 .filter(order -> !order.getOrderDate().isBefore(startDate) && !order.getOrderDate().isAfter(endDate))

@@ -10,10 +10,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class OrderController implements Initializable {
@@ -90,15 +92,11 @@ public class OrderController implements Initializable {
 
     private void loadOrders() {
         try {
-            System.out.println("Controller: Loading orders");
             List<Order> orders = orderService.getAllOrders();
             orderList.clear();
             orderList.addAll(orders);
             orderTable.setItems(orderList);
-            System.out.println("Controller: Loaded " + orders.size() + " orders");
-        } catch (Exception e) {
-            System.err.println("Controller: Error loading orders: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to load orders: " + e.getMessage());
         }
     }
@@ -112,9 +110,7 @@ public class OrderController implements Initializable {
             paymentMethodComboBox.setItems(FXCollections.observableArrayList("CASH", "CREDIT_CARD", "DEBIT_CARD"));
             searchByComboBox.setItems(FXCollections.observableArrayList("id", "customer", "status"));
             sortByComboBox.setItems(FXCollections.observableArrayList("id", "date", "total", "customer"));
-        } catch (IOException e) {
-            System.err.println("Controller: Error setting up combo boxes: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to load data: " + e.getMessage());
         }
     }
@@ -166,15 +162,11 @@ public class OrderController implements Initializable {
         try {
             Order order = new Order();
             setOrderFields(order);
-            System.out.println("Controller: Creating order: " + order);
             orderService.addOrder(order);
-            System.out.println("Controller: Order created successfully");
             loadOrders();
             clearFields();
             AlertUtil.showInformation("Success", "Order created successfully");
-        } catch (Exception e) {
-            System.err.println("Controller: Error creating order: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to create order: " + e.getMessage());
         }
     }
@@ -189,15 +181,11 @@ public class OrderController implements Initializable {
 
         try {
             setOrderFields(selectedOrder);
-            System.out.println("Controller: Updating order: " + selectedOrder);
             orderService.updateOrder(selectedOrder);
-            System.out.println("Controller: Order updated successfully");
             loadOrders();
             clearFields();
             AlertUtil.showInformation("Success", "Order updated successfully");
-        } catch (Exception e) {
-            System.err.println("Controller: Error updating order: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to update order: " + e.getMessage());
         }
     }
@@ -212,15 +200,11 @@ public class OrderController implements Initializable {
 
         if (AlertUtil.showConfirmation("Confirm Delete", "Are you sure you want to delete this order?")) {
             try {
-                System.out.println("Controller: Deleting order: " + selectedOrder);
                 orderService.deleteOrder(selectedOrder.getId());
-                System.out.println("Controller: Order deleted successfully");
                 loadOrders();
                 clearFields();
                 AlertUtil.showInformation("Success", "Order deleted successfully");
-            } catch (Exception e) {
-                System.err.println("Controller: Error deleting order: " + e.getMessage());
-                e.printStackTrace();
+            } catch (SQLException e) {
                 AlertUtil.showError("Error", "Failed to delete order: " + e.getMessage());
             }
         }
@@ -234,13 +218,9 @@ public class OrderController implements Initializable {
         boolean ascending = ascendingCheckBox.isSelected();
 
         try {
-            System.out.println("Controller: Searching orders - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
             List<Order> searchResults = orderService.searchOrders(query, searchBy, sortBy, ascending);
             orderList.setAll(searchResults);
-            System.out.println("Controller: Search completed, found " + searchResults.size() + " results");
-        } catch (IOException e) {
-            System.err.println("Controller: Error searching orders: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Search Error", "An error occurred while searching for orders: " + e.getMessage());
         }
     }
@@ -253,7 +233,7 @@ public class OrderController implements Initializable {
         order.setSpecialInstructions(specialInstructionsArea.getText());
         order.setPaymentMethod(paymentMethodComboBox.getValue());
 
-        order.getItems().clear();
+        Map<Item, Integer> items = new HashMap<>();
         for (String itemString : selectedItems) {
             String[] parts = itemString.split(" x");
             String itemName = parts[0];
@@ -263,9 +243,10 @@ public class OrderController implements Initializable {
                     .findFirst()
                     .orElse(null);
             if (item != null) {
-                order.addItem(item, quantity);
+                items.put(item, quantity);
             }
         }
+        order.setItems(items);
 
         order.calculateTotal();
     }
@@ -279,8 +260,8 @@ public class OrderController implements Initializable {
         paymentMethodComboBox.setValue(order.getPaymentMethod());
 
         selectedItems.clear();
-        for (Item item : order.getItems().keySet()) {
-            selectedItems.add(item.getName() + " x" + order.getItems().get(item));
+        for (Map.Entry<Item, Integer> entry : order.getItems().entrySet()) {
+            selectedItems.add(entry.getKey().getName() + " x" + entry.getValue());
         }
         selectedItemsListView.setItems(selectedItems);
 
@@ -301,6 +282,11 @@ public class OrderController implements Initializable {
                 })
                 .sum();
         totalLabel.setText(String.format("Total: $%.2f", total));
+    }
+
+    @FXML
+    private void handleClear() {
+        clearFields();
     }
 
     @FXML

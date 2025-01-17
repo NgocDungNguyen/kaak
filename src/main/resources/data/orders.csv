@@ -1,6 +1,0 @@
-id,customerId,deliverymanId,orderDate,status,totalAmount,deliveryAddress,specialInstructions,paymentMethod,deliveryTime
-ORD001,CST001,DLV001,2023-05-15 14:30:00,DELIVERED,35.97,"123 Main St, City","Ring doorbell twice",CREDIT_CARD,2023-05-15 15:15:00
-ORD002,CST002,DLV002,2023-05-10 15:45:00,DELIVERED,23.98,"456 Oak Ave, Town","No onions please",CASH,2023-05-10 16:30:00
-ORD003,CST003,DLV003,2023-05-12 12:20:00,DELIVERED,25.98,"789 Pine Rd, Village","Leave at door",DEBIT_CARD,2023-05-12 13:05:00
-ORD004,CST004,DLV004,2023-05-14 18:00:00,DELIVERED,19.98,"101 Elm St, Suburb","Extra napkins",CREDIT_CARD,2023-05-14 18:45:00
-ORD005,CST001,DLV005,2023-05-15 19:30:00,PREPARING,27.97,"123 Main St, City","No utensils needed",CREDIT_CARD,null

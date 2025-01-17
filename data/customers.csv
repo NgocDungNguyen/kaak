@@ -1,6 +1,6 @@
-id,name,phone,email,address,joinDate,totalOrders,lastOrderDate
-CST001,John Doe,+1234567890,john.doe@email.com,"123 Main St, City",2023-01-01,5,2023-05-15
-CST002,Jane Smith,+1234567891,jane.smith@email.com,"456 Oak Ave, Town",2023-02-15,3,2023-05-10
-CST003,Bob Wilson,+1234567892,bob.wilson@email.com,"789 Pine Rd, Village",2023-03-20,2,2023-05-12
-CST004,Alice Brown,+1234567893,alice.brown@email.com,"101 Elm St, Suburb",2023-04-05,1,2023-05-14
-CST005,Charlie Green,+1234567894,charlie.green@email.com,"202 Maple Dr, County",2023-05-01,0,null
+"id","name","phone","email","address","joinDate","totalOrders","lastOrderDate"
+"CST001","John","0123456789","john.doe@email.com","123 Main St, City","2023-01-01","5","2023-05-15"
+"CST002","Jane Smith","0123456790","jane.smith@email.com","456 Oak Ave, Town","2023-02-15","3","2023-05-10"
+"CST003","Bob Wilson","0123456791","bob.wilson@email.com","789 Pine Rd, Village","2023-03-20","2","2023-05-12"
+"CST004","Alice Brown","0123456792","alice.brown@email.com","101 Elm St, Suburb","2023-04-05","1","2023-05-14"
+"CST005","Charlie","0123456793","charlie.green@email.com","202 Maple Dr, County","2023-05-01","0","null"

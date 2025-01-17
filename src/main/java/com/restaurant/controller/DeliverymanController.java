@@ -11,8 +11,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -21,14 +22,16 @@ public class DeliverymanController implements Initializable {
     @FXML private TableColumn<Deliveryman, String> idColumn;
     @FXML private TableColumn<Deliveryman, String> nameColumn;
     @FXML private TableColumn<Deliveryman, String> phoneColumn;
+    @FXML private TableColumn<Deliveryman, String> emailColumn;
+    @FXML private TableColumn<Deliveryman, String> statusColumn;
     @FXML private TableColumn<Deliveryman, String> vehicleTypeColumn;
 
     @FXML private TextField nameField;
     @FXML private TextField phoneField;
-    @FXML private TextField vehicleTypeField;
     @FXML private TextField emailField;
-    @FXML private TextField licenseNumberField;
     @FXML private ComboBox<String> statusComboBox;
+    @FXML private TextField vehicleTypeField;
+    @FXML private TextField licenseNumberField;
     @FXML private Button addButton;
     @FXML private Button updateButton;
     @FXML private Button deleteButton;
@@ -60,20 +63,18 @@ public class DeliverymanController implements Initializable {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         vehicleTypeColumn.setCellValueFactory(new PropertyValueFactory<>("vehicleType"));
     }
 
     private void loadDeliverymen() {
         try {
-            System.out.println("Controller: Loading deliverymen");
             List<Deliveryman> deliverymen = deliverymanService.getAllDeliverymen();
             deliverymanList.clear();
             deliverymanList.addAll(deliverymen);
             deliverymanTable.setItems(deliverymanList);
-            System.out.println("Controller: Loaded " + deliverymen.size() + " deliverymen");
-        } catch (Exception e) {
-            System.err.println("Controller: Error loading deliverymen: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to load deliverymen: " + e.getMessage());
         }
     }
@@ -83,10 +84,10 @@ public class DeliverymanController implements Initializable {
             if (newSelection != null) {
                 nameField.setText(newSelection.getName());
                 phoneField.setText(newSelection.getPhone());
-                vehicleTypeField.setText(newSelection.getVehicleType());
                 emailField.setText(newSelection.getEmail());
-                licenseNumberField.setText(newSelection.getLicenseNumber());
                 statusComboBox.setValue(newSelection.getStatus());
+                vehicleTypeField.setText(newSelection.getVehicleType());
+                licenseNumberField.setText(newSelection.getLicenseNumber());
                 updateButton.setDisable(false);
                 deleteButton.setDisable(false);
             }
@@ -94,10 +95,9 @@ public class DeliverymanController implements Initializable {
 
         nameField.textProperty().addListener((obs, old, newValue) -> validateInputs());
         phoneField.textProperty().addListener((obs, old, newValue) -> validateInputs());
-        vehicleTypeField.textProperty().addListener((obs, old, newValue) -> validateInputs());
         emailField.textProperty().addListener((obs, old, newValue) -> validateInputs());
+        vehicleTypeField.textProperty().addListener((obs, old, newValue) -> validateInputs());
         licenseNumberField.textProperty().addListener((obs, old, newValue) -> validateInputs());
-        statusComboBox.valueProperty().addListener((obs, old, newValue) -> validateInputs());
     }
 
     private void setupButtonStates() {
@@ -113,25 +113,24 @@ public class DeliverymanController implements Initializable {
 
     @FXML
     private void handleAdd() {
+        Deliveryman deliveryman = new Deliveryman();
+        deliveryman.setName(nameField.getText().trim());
+        deliveryman.setPhone(phoneField.getText().trim());
+        deliveryman.setEmail(emailField.getText().trim());
+        deliveryman.setStatus(statusComboBox.getValue());
+        deliveryman.setVehicleType(vehicleTypeField.getText().trim());
+        deliveryman.setLicenseNumber(licenseNumberField.getText().trim());
+        deliveryman.setJoinDate(LocalDate.now());
+        deliveryman.setTotalDeliveries(0);
+        deliveryman.setRating(0.0);
+        deliveryman.setAvailable(true);
+
         try {
-            Deliveryman deliveryman = new Deliveryman();
-            deliveryman.setName(nameField.getText().trim());
-            deliveryman.setPhone(phoneField.getText().trim());
-            deliveryman.setVehicleType(vehicleTypeField.getText().trim());
-            deliveryman.setEmail(emailField.getText().trim());
-            deliveryman.setLicenseNumber(licenseNumberField.getText().trim());
-            deliveryman.setStatus(statusComboBox.getValue());
-
-            System.out.println("Controller: Adding deliveryman: " + deliveryman);
             deliverymanService.addDeliveryman(deliveryman);
-            System.out.println("Controller: Deliveryman added successfully");
-
             loadDeliverymen();
             clearFields();
             AlertUtil.showInformation("Success", "Deliveryman added successfully!");
-        } catch (Exception e) {
-            System.err.println("Controller: Error adding deliveryman: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to add deliveryman: " + e.getMessage());
         }
     }
@@ -144,24 +143,19 @@ public class DeliverymanController implements Initializable {
             return;
         }
 
+        selectedDeliveryman.setName(nameField.getText().trim());
+        selectedDeliveryman.setPhone(phoneField.getText().trim());
+        selectedDeliveryman.setEmail(emailField.getText().trim());
+        selectedDeliveryman.setStatus(statusComboBox.getValue());
+        selectedDeliveryman.setVehicleType(vehicleTypeField.getText().trim());
+        selectedDeliveryman.setLicenseNumber(licenseNumberField.getText().trim());
+
         try {
-            selectedDeliveryman.setName(nameField.getText().trim());
-            selectedDeliveryman.setPhone(phoneField.getText().trim());
-            selectedDeliveryman.setVehicleType(vehicleTypeField.getText().trim());
-            selectedDeliveryman.setEmail(emailField.getText().trim());
-            selectedDeliveryman.setLicenseNumber(licenseNumberField.getText().trim());
-            selectedDeliveryman.setStatus(statusComboBox.getValue());
-
-            System.out.println("Controller: Updating deliveryman: " + selectedDeliveryman);
             deliverymanService.updateDeliveryman(selectedDeliveryman.getId(), selectedDeliveryman);
-            System.out.println("Controller: Deliveryman updated successfully");
-
             loadDeliverymen();
             clearFields();
             AlertUtil.showInformation("Success", "Deliveryman updated successfully!");
-        } catch (Exception e) {
-            System.err.println("Controller: Error updating deliveryman: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to update deliveryman: " + e.getMessage());
         }
     }
@@ -174,18 +168,13 @@ public class DeliverymanController implements Initializable {
             return;
         }
 
-        if (AlertUtil.showConfirmation("Confirm Delete",
-                "Are you sure you want to delete this deliveryman?")) {
+        if (AlertUtil.showConfirmation("Confirm Delete", "Are you sure you want to delete this deliveryman?")) {
             try {
-                System.out.println("Controller: Deleting deliveryman: " + selectedDeliveryman);
                 deliverymanService.deleteDeliveryman(selectedDeliveryman.getId());
-                System.out.println("Controller: Deliveryman deleted successfully");
                 loadDeliverymen();
                 clearFields();
                 AlertUtil.showInformation("Success", "Deliveryman deleted successfully!");
-            } catch (Exception e) {
-                System.err.println("Controller: Error deleting deliveryman: " + e.getMessage());
-                e.printStackTrace();
+            } catch (SQLException e) {
                 AlertUtil.showError("Error", "Failed to delete deliveryman: " + e.getMessage());
             }
         }
@@ -204,13 +193,9 @@ public class DeliverymanController implements Initializable {
         boolean ascending = ascendingCheckBox.isSelected();
 
         try {
-            System.out.println("Controller: Searching deliverymen - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
             List<Deliveryman> searchResults = deliverymanService.searchDeliverymen(query, searchBy, sortBy, ascending);
             deliverymanList.setAll(searchResults);
-            System.out.println("Controller: Search completed, found " + searchResults.size() + " results");
-        } catch (IOException e) {
-            System.err.println("Controller: Error searching deliverymen: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Search Error", "An error occurred while searching for deliverymen: " + e.getMessage());
         }
     }
@@ -218,10 +203,10 @@ public class DeliverymanController implements Initializable {
     private void clearFields() {
         nameField.clear();
         phoneField.clear();
-        vehicleTypeField.clear();
         emailField.clear();
-        licenseNumberField.clear();
         statusComboBox.setValue(null);
+        vehicleTypeField.clear();
+        licenseNumberField.clear();
         deliverymanTable.getSelectionModel().clearSelection();
         updateButton.setDisable(true);
         deleteButton.setDisable(true);
@@ -230,10 +215,10 @@ public class DeliverymanController implements Initializable {
     private void validateInputs() {
         boolean isValid = !nameField.getText().trim().isEmpty() &&
                 !phoneField.getText().trim().isEmpty() &&
-                !vehicleTypeField.getText().trim().isEmpty() &&
                 !emailField.getText().trim().isEmpty() &&
-                !licenseNumberField.getText().trim().isEmpty() &&
-                statusComboBox.getValue() != null;
+                statusComboBox.getValue() != null &&
+                !vehicleTypeField.getText().trim().isEmpty() &&
+                !licenseNumberField.getText().trim().isEmpty();
 
         addButton.setDisable(!isValid);
         if (deliverymanTable.getSelectionModel().getSelectedItem() != null) {

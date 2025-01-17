@@ -2,127 +2,129 @@ package com.restaurant.dao;
 
 import com.restaurant.dao.interfaces.GenericDAO;
 import com.restaurant.model.Customer;
-import com.restaurant.util.CSVHandler;
+import com.restaurant.util.DatabaseManager;
 
-import java.io.*;
+import java.sql.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
 public class CustomerDAO implements GenericDAO<Customer, String> {
-    private static final String CSV_FILE_PATH = "data/customers.csv";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-    public CustomerDAO() {
-        try {
-            String[] headers = {"id", "name", "phone", "email", "address", "joinDate", "totalOrders", "lastOrderDate"};
-            CSVHandler.validateCSVStructure(CSV_FILE_PATH, headers);
-        } catch (IOException e) {
-            System.err.println("Error initializing CustomerDAO: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     @Override
-    public Customer create(Customer customer) throws IOException {
-        System.out.println("DAO: Creating customer");
-        customer.setId(UUID.randomUUID().toString());
-        List<Customer> customers = findAll();
-        customers.add(customer);
-        saveToCSV(customers);
-        System.out.println("DAO: Customer created and saved");
+    public Customer create(Customer customer) throws SQLException {
+        String sql = "INSERT INTO customers (id, name, phone, email, address, joinDate, totalOrders, lastOrderDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            customer.setId(generateUniqueId());
+            pstmt.setString(1, customer.getId());
+            pstmt.setString(2, customer.getName());
+            pstmt.setString(3, customer.getPhone());
+            pstmt.setString(4, customer.getEmail());
+            pstmt.setString(5, customer.getAddress());
+            pstmt.setString(6, customer.getJoinDate().toString());
+            pstmt.setInt(7, customer.getTotalOrders());
+            pstmt.setString(8, customer.getLastOrderDate() != null ? customer.getLastOrderDate().toString() : null);
+
+            pstmt.executeUpdate();
+        }
         return customer;
     }
 
     @Override
-    public void update(Customer customer) throws IOException {
-        System.out.println("DAO: Updating customer");
-        List<Customer> customers = findAll();
-        for (int i = 0; i < customers.size(); i++) {
-            if (customers.get(i).getId().equals(customer.getId())) {
-                customers.set(i, customer);
-                break;
-            }
+    public void update(Customer customer) throws SQLException {
+        String sql = "UPDATE customers SET name = ?, phone = ?, email = ?, address = ?, joinDate = ?, totalOrders = ?, lastOrderDate = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, customer.getName());
+            pstmt.setString(2, customer.getPhone());
+            pstmt.setString(3, customer.getEmail());
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setString(5, customer.getJoinDate().toString());
+            pstmt.setInt(6, customer.getTotalOrders());
+            pstmt.setString(7, customer.getLastOrderDate() != null ? customer.getLastOrderDate().toString() : null);
+            pstmt.setString(8, customer.getId());
+
+            pstmt.executeUpdate();
         }
-        saveToCSV(customers);
-        System.out.println("DAO: Customer updated and saved");
     }
 
     @Override
-    public void delete(String id) throws IOException {
-        System.out.println("DAO: Deleting customer");
-        List<Customer> customers = findAll();
-        customers.removeIf(customer -> customer.getId().equals(id));
-        saveToCSV(customers);
-        System.out.println("DAO: Customer deleted and changes saved");
+    public void delete(String id) throws SQLException {
+        String sql = "DELETE FROM customers WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, id);
+            pstmt.executeUpdate();
+        }
     }
 
     @Override
-    public List<Customer> findAll() throws IOException {
-        System.out.println("DAO: Finding all customers from file: " + CSV_FILE_PATH);
+    public List<Customer> findAll() throws SQLException {
         List<Customer> customers = new ArrayList<>();
-        File file = new File(CSV_FILE_PATH);
+        String sql = "SELECT * FROM customers";
 
-        if (!file.exists()) {
-            System.out.println("DAO: Customer file does not exist");
-            return customers;
-        }
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            reader.readLine(); // Skip header
-            while ((line = reader.readLine()) != null) {
-                System.out.println("DAO: Reading customer line: " + line);
-                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-                if (data.length >= 8) {
-                    Customer customer = new Customer();
-                    customer.setId(data[0]);
-                    customer.setName(data[1]);
-                    customer.setPhone(data[2]);
-                    customer.setEmail(data[3]);
-                    customer.setAddress(data[4].replace("\"", ""));
-                    customer.setJoinDate(LocalDate.parse(data[5], DATE_FORMATTER));
-                    customer.setTotalOrders(Integer.parseInt(data[6]));
-                    customer.setLastOrderDate(data[7].equals("null") ? null : LocalDate.parse(data[7], DATE_FORMATTER));
-                    customers.add(customer);
-                }
+            while (rs.next()) {
+                Customer customer = new Customer();
+                customer.setId(rs.getString("id"));
+                customer.setName(rs.getString("name"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setEmail(rs.getString("email"));
+                customer.setAddress(rs.getString("address"));
+                customer.setJoinDate(LocalDate.parse(rs.getString("joinDate")));
+                customer.setTotalOrders(rs.getInt("totalOrders"));
+                String lastOrderDate = rs.getString("lastOrderDate");
+                customer.setLastOrderDate(lastOrderDate != null ? LocalDate.parse(lastOrderDate) : null);
+                customers.add(customer);
             }
         }
-        System.out.println("DAO: Found " + customers.size() + " customers");
         return customers;
     }
 
-
     @Override
-    public Customer findById(String id) throws IOException {
-        System.out.println("DAO: Finding customer by ID: " + id);
-        return findAll().stream()
-                .filter(customer -> customer.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public Customer findById(String id) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                Customer customer = new Customer();
+                customer.setId(rs.getString("id"));
+                customer.setName(rs.getString("name"));
+                customer.setPhone(rs.getString("phone"));
+                customer.setEmail(rs.getString("email"));
+                customer.setAddress(rs.getString("address"));
+                customer.setJoinDate(LocalDate.parse(rs.getString("joinDate")));
+                customer.setTotalOrders(rs.getInt("totalOrders"));
+                String lastOrderDate = rs.getString("lastOrderDate");
+                customer.setLastOrderDate(lastOrderDate != null ? LocalDate.parse(lastOrderDate) : null);
+                return customer;
+            }
+        }
+        return null;
     }
 
-    private void saveToCSV(List<Customer> customers) throws IOException {
-        System.out.println("DAO: Saving customers to CSV: " + CSV_FILE_PATH);
-        try (PrintWriter writer = new PrintWriter(new FileWriter(CSV_FILE_PATH))) {
-            writer.println("id,name,phone,email,address,joinDate,totalOrders,lastOrderDate");
-            for (Customer customer : customers) {
-                writer.println(String.format("%s,%s,%s,%s,%s,%s,%d,%s",
-                        customer.getId(),
-                        customer.getName(),
-                        customer.getPhone(),
-                        customer.getEmail(),
-                        customer.getAddress(),
-                        customer.getJoinDate().format(DATE_FORMATTER),
-                        customer.getTotalOrders(),
-                        customer.getLastOrderDate() != null ? customer.getLastOrderDate().format(DATE_FORMATTER) : "null"));
-            }
-        } catch (IOException e) {
-            System.err.println("Error saving customers to CSV: " + e.getMessage());
-            throw e;
-        }
-        System.out.println("DAO: Customers saved successfully");
+    private String generateUniqueId() throws SQLException {
+        Random random = new Random();
+        String id;
+        do {
+            id = "CST" + String.format("%03d", random.nextInt(1000));
+        } while (findById(id) != null);
+        return id;
     }
 }

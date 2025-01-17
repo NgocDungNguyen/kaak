@@ -1,17 +1,12 @@
 package com.restaurant.dao.interfaces;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Generic DAO interface that defines common CRUD operations
- * @param <T> The type of entity
- * @param <ID> The type of entity's identifier
- */
 public interface GenericDAO<T, ID> {
-    T create(T entity) throws IOException;
-    void update(T entity) throws IOException;
-    void delete(ID id) throws IOException;
-    List<T> findAll() throws IOException;
-    T findById(ID id) throws IOException;
+    T create(T entity) throws SQLException;
+    void update(T entity) throws SQLException;
+    void delete(ID id) throws SQLException;
+    List<T> findAll() throws SQLException;
+    T findById(ID id) throws SQLException;
 }

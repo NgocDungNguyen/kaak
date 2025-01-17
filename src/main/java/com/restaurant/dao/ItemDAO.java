@@ -2,139 +2,134 @@ package com.restaurant.dao;
 
 import com.restaurant.dao.interfaces.GenericDAO;
 import com.restaurant.model.Item;
-import com.restaurant.util.CSVHandler;
+import com.restaurant.util.DatabaseManager;
 
-import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
 public class ItemDAO implements GenericDAO<Item, String> {
-    private static final String CSV_FILE_PATH = "data/items.csv";
-
-    public ItemDAO() {
-        try {
-            String[] headers = {"id", "name", "category", "price", "description", "preparationTime", "isAvailable", "imageUrl", "calories", "spicyLevel"};
-            CSVHandler.validateCSVStructure(CSV_FILE_PATH, headers);
-        } catch (IOException e) {
-            System.err.println("Error initializing ItemDAO: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     @Override
-    public Item create(Item item) throws IOException {
-        System.out.println("DAO: Creating item");
-        item.setId(UUID.randomUUID().toString());
-        List<Item> items = findAll();
-        items.add(item);
-        saveToCSV(items);
-        System.out.println("DAO: Item created and saved");
+    public Item create(Item item) throws SQLException {
+        String sql = "INSERT INTO items (id, name, category, price, description, preparationTime, isAvailable, imageUrl, calories, spicyLevel) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            item.setId(generateUniqueId());
+            pstmt.setString(1, item.getId());
+            pstmt.setString(2, item.getName());
+            pstmt.setString(3, item.getCategory());
+            pstmt.setDouble(4, item.getPrice());
+            pstmt.setString(5, item.getDescription());
+            pstmt.setInt(6, item.getPreparationTime());
+            pstmt.setBoolean(7, item.isAvailable());
+            pstmt.setString(8, item.getImageUrl());
+            pstmt.setInt(9, item.getCalories());
+            pstmt.setInt(10, item.getSpicyLevel());
+
+            pstmt.executeUpdate();
+        }
         return item;
     }
 
     @Override
-    public void update(Item item) throws IOException {
-        System.out.println("DAO: Updating item");
-        List<Item> items = findAll();
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getId().equals(item.getId())) {
-                items.set(i, item);
-                break;
-            }
+    public void update(Item item) throws SQLException {
+        String sql = "UPDATE items SET name = ?, category = ?, price = ?, description = ?, preparationTime = ?, isAvailable = ?, imageUrl = ?, calories = ?, spicyLevel = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, item.getName());
+            pstmt.setString(2, item.getCategory());
+            pstmt.setDouble(3, item.getPrice());
+            pstmt.setString(4, item.getDescription());
+            pstmt.setInt(5, item.getPreparationTime());
+            pstmt.setBoolean(6, item.isAvailable());
+            pstmt.setString(7, item.getImageUrl());
+            pstmt.setInt(8, item.getCalories());
+            pstmt.setInt(9, item.getSpicyLevel());
+            pstmt.setString(10, item.getId());
+
+            pstmt.executeUpdate();
         }
-        saveToCSV(items);
-        System.out.println("DAO: Item updated and saved");
     }
 
     @Override
-    public void delete(String id) throws IOException {
-        System.out.println("DAO: Deleting item");
-        List<Item> items = findAll();
-        items.removeIf(item -> item.getId().equals(id));
-        saveToCSV(items);
-        System.out.println("DAO: Item deleted and changes saved");
+    public void delete(String id) throws SQLException {
+        String sql = "DELETE FROM items WHERE id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, id);
+            pstmt.executeUpdate();
+        }
     }
 
     @Override
-    public List<Item> findAll() throws IOException {
-        System.out.println("DAO: Finding all items from file: " + CSV_FILE_PATH);
+    public List<Item> findAll() throws SQLException {
         List<Item> items = new ArrayList<>();
-        File file = new File(CSV_FILE_PATH);
+        String sql = "SELECT * FROM items";
 
-        if (!file.exists()) {
-            System.out.println("DAO: Items file does not exist");
-            return items;
-        }
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            reader.readLine(); // Skip header
-            while ((line = reader.readLine()) != null) {
-                System.out.println("DAO: Reading item line: " + line);
-                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-                if (data.length >= 10) {
-                    Item item = new Item();
-                    item.setId(data[0]);
-                    item.setName(data[1]);
-                    item.setCategory(data[2]);
-                    item.setPrice(Double.parseDouble(data[3]));
-                    item.setDescription(data[4].replace("\"", ""));
-                    item.setPreparationTime(Integer.parseInt(data[5]));
-                    item.setAvailable(Boolean.parseBoolean(data[6]));
-                    item.setImageUrl(data[7]);
-                    item.setCalories(Integer.parseInt(data[8]));
-                    item.setSpicyLevel(Integer.parseInt(data[9]));
-                    items.add(item);
-                }
+            while (rs.next()) {
+                Item item = new Item();
+                item.setId(rs.getString("id"));
+                item.setName(rs.getString("name"));
+                item.setCategory(rs.getString("category"));
+                item.setPrice(rs.getDouble("price"));
+                item.setDescription(rs.getString("description"));
+                item.setPreparationTime(rs.getInt("preparationTime"));
+                item.setAvailable(rs.getBoolean("isAvailable"));
+                item.setImageUrl(rs.getString("imageUrl"));
+                item.setCalories(rs.getInt("calories"));
+                item.setSpicyLevel(rs.getInt("spicyLevel"));
+                items.add(item);
             }
         }
-        System.out.println("DAO: Found " + items.size() + " items");
         return items;
     }
 
-
     @Override
-    public Item findById(String id) throws IOException {
-        System.out.println("DAO: Finding item by ID: " + id);
-        return findAll().stream()
-                .filter(item -> item.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
+    public Item findById(String id) throws SQLException {
+        String sql = "SELECT * FROM items WHERE id = ?";
 
-    private void saveToCSV(List<Item> items) throws IOException {
-        System.out.println("DAO: Saving items to CSV: " + CSV_FILE_PATH);
-        try (PrintWriter writer = new PrintWriter(new FileWriter(CSV_FILE_PATH))) {
-            writer.println("id,name,category,price,description,preparationTime,isAvailable,imageUrl,calories,spicyLevel");
-            for (Item item : items) {
-                writer.println(String.format("%s,%s,%s,%.2f,%s,%d,%b,%s,%d,%d",
-                        item.getId(),
-                        escapeCsvField(item.getName()),
-                        escapeCsvField(item.getCategory()),
-                        item.getPrice(),
-                        escapeCsvField(item.getDescription()),
-                        item.getPreparationTime(),
-                        item.isAvailable(),
-                        escapeCsvField(item.getImageUrl()),
-                        item.getCalories(),
-                        item.getSpicyLevel()));
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                Item item = new Item();
+                item.setId(rs.getString("id"));
+                item.setName(rs.getString("name"));
+                item.setCategory(rs.getString("category"));
+                item.setPrice(rs.getDouble("price"));
+                item.setDescription(rs.getString("description"));
+                item.setPreparationTime(rs.getInt("preparationTime"));
+                item.setAvailable(rs.getBoolean("isAvailable"));
+                item.setImageUrl(rs.getString("imageUrl"));
+                item.setCalories(rs.getInt("calories"));
+                item.setSpicyLevel(rs.getInt("spicyLevel"));
+                return item;
             }
-        } catch (IOException e) {
-            System.err.println("Error saving items to CSV: " + e.getMessage());
-            throw e;
         }
-        System.out.println("DAO: Items saved successfully");
+        return null;
     }
 
-    private String escapeCsvField(String field) {
-        if (field == null) {
-            return "";
-        }
-        field = field.replace("\"", "\"\"");
-        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
-            field = "\"" + field + "\"";
-        }
-        return field;
+    private String generateUniqueId() throws SQLException {
+        Random random = new Random();
+        String id;
+        do {
+            id = "ITM" + String.format("%03d", random.nextInt(1000));
+        } while (findById(id) != null);
+        return id;
     }
 }

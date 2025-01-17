@@ -2,87 +2,56 @@ package com.restaurant.util;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
-import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.exceptions.CsvException;
+
 import java.io.*;
-import java.util.List;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CSVHandler {
+    private static final String DATA_DIR = "data";
 
-    public static void checkFileAccess(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                System.out.println("File created: " + filePath);
-            } catch (IOException e) {
-                System.out.println("Failed to create file: " + filePath);
-                e.printStackTrace();
-                return;
+    public static void validateCSVStructure(String fileName, String[] expectedHeaders) throws IOException {
+        Path filePath = getFilePath(fileName);
+        if (!Files.exists(filePath) || Files.size(filePath) == 0) {
+            List<String> headers = Arrays.asList(expectedHeaders);
+            Files.write(filePath, headers);
+        } else {
+            List<String> existingHeaders = Files.readAllLines(filePath).stream().findFirst().map(line -> Arrays.asList(line.split(","))).orElse(null);
+            if (!Arrays.asList(expectedHeaders).equals(existingHeaders)) {
+                throw new IOException("Invalid CSV structure in " + fileName);
             }
         }
-
-        System.out.println("File exists: " + filePath);
-        System.out.println("Can read: " + file.canRead());
-        System.out.println("Can write: " + file.canWrite());
-        System.out.println("Is directory: " + file.isDirectory());
-        System.out.println("Absolute path: " + file.getAbsolutePath());
     }
 
-    public static void writeToCSV(String filePath, List<String[]> data) throws IOException {
-        try (CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
+    public static List<String[]> readCSV(String fileName) throws IOException {
+        Path filePath = getFilePath(fileName);
+        if (!Files.exists(filePath)) {
+            return new ArrayList<>();
+        }
+
+        try (CSVReader reader = new CSVReader(Files.newBufferedReader(filePath))) {
+            return reader.readAll();
+        } catch (CsvException e) {
+            throw new IOException("Error reading CSV file: " + fileName, e);
+        }
+    }
+
+    public static void writeCSV(String fileName, List<String[]> data) throws IOException {
+        Path filePath = getFilePath(fileName);
+        try (CSVWriter writer = new CSVWriter(Files.newBufferedWriter(filePath))) {
             writer.writeAll(data);
         }
     }
 
-    public static List<String[]> readFromCSV(String filePath) throws IOException, CsvValidationException {
-        List<String[]> records = new ArrayList<>();
-        try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
-            String[] line;
-            while ((line = reader.readNext()) != null) {
-                records.add(line);
-            }
+    private static Path getFilePath(String fileName) throws IOException {
+        Path dirPath = Paths.get(DATA_DIR);
+        if (!Files.exists(dirPath)) {
+            Files.createDirectories(dirPath);
         }
-        return records;
-    }
-
-    public static void exportToCSV(String filePath, String[] headers, List<String[]> data) throws IOException {
-        List<String[]> allData = new ArrayList<>();
-        allData.add(headers);
-        allData.addAll(data);
-        writeToCSV(filePath, allData);
-    }
-
-    public static List<String[]> importFromCSV(String filePath, boolean skipHeader) throws IOException, CsvValidationException {
-        List<String[]> records = readFromCSV(filePath);
-        if (skipHeader && !records.isEmpty()) {
-            records.remove(0);
-        }
-        return records;
-    }
-
-    public static void validateCSVStructure(String filePath, String[] expectedHeaders) throws IOException {
-        File file = new File(filePath);
-        if (!file.exists() || file.length() == 0) {
-            // Create new file with headers
-            try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
-                writer.println(String.join(",", expectedHeaders));
-            }
-            return;
-        }
-
-        // Validate existing file headers
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String headerLine = reader.readLine();
-            if (headerLine == null) {
-                throw new IOException("CSV file is empty: " + filePath);
-            }
-
-            String[] actualHeaders = headerLine.split(",");
-            if (!Arrays.equals(actualHeaders, expectedHeaders)) {
-                throw new IOException("CSV file has invalid structure: " + filePath);
-            }
-        }
+        return dirPath.resolve(fileName);
     }
 }

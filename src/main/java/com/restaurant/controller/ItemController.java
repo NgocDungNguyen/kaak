@@ -11,8 +11,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -69,15 +69,11 @@ public class ItemController implements Initializable {
 
     private void loadItems() {
         try {
-            System.out.println("Controller: Loading items");
             List<Item> items = itemService.getAllItems();
             itemList.clear();
             itemList.addAll(items);
             itemTable.setItems(itemList);
-            System.out.println("Controller: Loaded " + items.size() + " items");
-        } catch (Exception e) {
-            System.err.println("Controller: Error loading items: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to load items: " + e.getMessage());
         }
     }
@@ -110,27 +106,22 @@ public class ItemController implements Initializable {
     }
 
     private void setupComboBoxes() {
-        categoryComboBox.setItems(FXCollections.observableArrayList("Main Course", "Appetizer", "Dessert", "Beverage"));
-        searchByComboBox.setItems(FXCollections.observableArrayList("name", "price"));
+        categoryComboBox.setItems(FXCollections.observableArrayList("Appetizer", "Main Course", "Dessert", "Beverage"));
+        searchByComboBox.setItems(FXCollections.observableArrayList("name", "category"));
         sortByComboBox.setItems(FXCollections.observableArrayList("name", "price"));
     }
 
     @FXML
     private void handleAdd() {
+        Item item = new Item();
+        setItemFields(item);
+
         try {
-            Item item = new Item();
-            setItemFields(item);
-
-            System.out.println("Controller: Adding item: " + item);
             itemService.addItem(item);
-            System.out.println("Controller: Item added successfully");
-
             loadItems();
             clearFields();
             AlertUtil.showInformation("Success", "Item added successfully!");
-        } catch (Exception e) {
-            System.err.println("Controller: Error adding item: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to add item: " + e.getMessage());
         }
     }
@@ -143,19 +134,14 @@ public class ItemController implements Initializable {
             return;
         }
 
+        setItemFields(selectedItem);
+
         try {
-            setItemFields(selectedItem);
-
-            System.out.println("Controller: Updating item: " + selectedItem);
             itemService.updateItem(selectedItem.getId(), selectedItem);
-            System.out.println("Controller: Item updated successfully");
-
             loadItems();
             clearFields();
             AlertUtil.showInformation("Success", "Item updated successfully!");
-        } catch (Exception e) {
-            System.err.println("Controller: Error updating item: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Error", "Failed to update item: " + e.getMessage());
         }
     }
@@ -170,15 +156,11 @@ public class ItemController implements Initializable {
 
         if (AlertUtil.showConfirmation("Confirm Delete", "Are you sure you want to delete this item?")) {
             try {
-                System.out.println("Controller: Deleting item: " + selectedItem);
                 itemService.deleteItem(selectedItem.getId());
-                System.out.println("Controller: Item deleted successfully");
                 loadItems();
                 clearFields();
                 AlertUtil.showInformation("Success", "Item deleted successfully!");
-            } catch (Exception e) {
-                System.err.println("Controller: Error deleting item: " + e.getMessage());
-                e.printStackTrace();
+            } catch (SQLException e) {
                 AlertUtil.showError("Error", "Failed to delete item: " + e.getMessage());
             }
         }
@@ -197,13 +179,9 @@ public class ItemController implements Initializable {
         boolean ascending = ascendingCheckBox.isSelected();
 
         try {
-            System.out.println("Controller: Searching items - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
             List<Item> searchResults = itemService.searchItems(query, searchBy, sortBy, ascending);
             itemList.setAll(searchResults);
-            System.out.println("Controller: Search completed, found " + searchResults.size() + " results");
-        } catch (IOException e) {
-            System.err.println("Controller: Error searching items: " + e.getMessage());
-            e.printStackTrace();
+        } catch (SQLException e) {
             AlertUtil.showError("Search Error", "An error occurred while searching for items: " + e.getMessage());
         }
     }

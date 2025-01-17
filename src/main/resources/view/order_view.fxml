@@ -72,7 +72,7 @@
                 <Button fx:id="createOrderButton" text="Create Order" onAction="#handleCreateOrder" styleClass="action-button"/>
                 <Button fx:id="updateOrderButton" text="Update Order" onAction="#handleUpdateOrder" styleClass="action-button"/>
                 <Button fx:id="deleteOrderButton" text="Delete Order" onAction="#handleDeleteOrder" styleClass="action-button"/>
-                <Button fx:id="clearButton" text="Clear" onAction="#clearFields" styleClass="action-button"/>
+                <Button fx:id="clearButton" text="Clear" onAction="#handleClear"/>
             </HBox>
         </VBox>
     </SplitPane>

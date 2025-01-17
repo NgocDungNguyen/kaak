@@ -4,7 +4,7 @@ import com.restaurant.dao.CustomerDAO;
 import com.restaurant.model.Customer;
 import com.restaurant.util.ValidationUtil;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,19 +17,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Customer> getAllCustomers() throws IOException {
+    public List<Customer> getAllCustomers() throws SQLException {
         System.out.println("Service: Getting all customers");
         return customerDAO.findAll();
     }
 
     @Override
-    public Customer getCustomerById(String id) throws IOException {
+    public Customer getCustomerById(String id) throws SQLException {
         System.out.println("Service: Getting customer by ID: " + id);
         return customerDAO.findById(id);
     }
 
     @Override
-    public void addCustomer(Customer customer) throws IOException {
+    public void addCustomer(Customer customer) throws SQLException {
         System.out.println("Service: Adding customer");
         validateCustomer(customer);
         customerDAO.create(customer);
@@ -37,7 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateCustomer(String id, Customer customer) throws IOException {
+    public void updateCustomer(String id, Customer customer) throws SQLException {
         System.out.println("Service: Updating customer with ID: " + id);
         validateCustomer(customer);
         customer.setId(id);
@@ -46,14 +46,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteCustomer(String id) throws IOException {
+    public void deleteCustomer(String id) throws SQLException {
         System.out.println("Service: Deleting customer with ID: " + id);
         customerDAO.delete(id);
         System.out.println("Service: Customer deleted successfully");
     }
 
     @Override
-    public List<Customer> searchCustomers(String query, String searchBy, String sortBy, boolean ascending) throws IOException {
+    public List<Customer> searchCustomers(String query, String searchBy, String sortBy, boolean ascending) throws SQLException {
         System.out.println("Service: Searching customers - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
         List<Customer> customers = customerDAO.findAll();
 

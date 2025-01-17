@@ -1,25 +1,25 @@
 package com.restaurant;
 
-import com.restaurant.util.CSVHandler;
+import com.restaurant.util.DatabaseManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class MainApplication extends Application {
+    private static final String DB_FILE = "restaurant.db";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        initializeDataDirectory();
-        copyCSVFilesFromResources();
-        checkFileAccess();
+        initializeDatabase();
+        printDatabaseContents();
 
         Parent root = FXMLLoader.load(getClass().getResource("/view/main_view.fxml"));
         primaryStage.setTitle("Restaurant Management System");
@@ -27,44 +27,34 @@ public class MainApplication extends Application {
         primaryStage.show();
     }
 
-    private void initializeDataDirectory() throws IOException {
-        File dataDir = new File("data");
-        if (!dataDir.exists() && !dataDir.mkdir()) {
-            throw new IOException("Failed to create data directory");
+    private void initializeDatabase() {
+        File dbFile = new File(DB_FILE);
+        if (!dbFile.exists()) {
+            DatabaseManager.initializeDatabase();
+            DatabaseManager.insertSampleData();
         }
     }
 
-    private void copyCSVFilesFromResources() throws IOException {
-        String[] fileNames = {"customers.csv", "deliverymen.csv", "items.csv", "orders.csv", "order_items.csv"};
-        for (String fileName : fileNames) {
-            InputStream inputStream = getClass().getResourceAsStream("/data/" + fileName);
-            if (inputStream == null) {
-                System.err.println("Resource not found: /data/" + fileName);
-                continue;
-            }
-            Path targetPath = Paths.get("data", fileName);
-            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("Copied " + fileName + " to " + targetPath.toAbsolutePath());
+    private void printDatabaseContents() {
+        String[] tables = {"customers", "deliverymen", "items", "orders", "order_items"};
+        for (String table : tables) {
+            System.out.println("Contents of " + table + " table:");
+            try (Connection conn = DatabaseManager.getConnection();
+                 Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT * FROM " + table)) {
 
-            // Print the contents of the copied file
-            try (BufferedReader reader = new BufferedReader(new FileReader(targetPath.toFile()))) {
-                String line;
-                System.out.println("Contents of " + fileName + ":");
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
+                int columnCount = rs.getMetaData().getColumnCount();
+                while (rs.next()) {
+                    StringBuilder row = new StringBuilder();
+                    for (int i = 1; i <= columnCount; i++) {
+                        row.append(rs.getString(i)).append(", ");
+                    }
+                    System.out.println(row.substring(0, row.length() - 2));
                 }
+            } catch (SQLException e) {
+                System.err.println("Error reading " + table + " table: " + e.getMessage());
             }
-        }
-    }
-
-    private void checkFileAccess() {
-        String[] files = {"customers.csv", "deliverymen.csv", "items.csv", "orders.csv", "order_items.csv"};
-        for (String file : files) {
-            File f = new File("data/" + file);
-            System.out.println("File: " + f.getAbsolutePath());
-            System.out.println("Exists: " + f.exists());
-            System.out.println("Can read: " + f.canRead());
-            System.out.println("Can write: " + f.canWrite());
+            System.out.println();
         }
     }
 

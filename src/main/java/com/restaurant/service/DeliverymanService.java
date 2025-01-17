@@ -1,14 +1,14 @@
 package com.restaurant.service;
 
 import com.restaurant.model.Deliveryman;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface DeliverymanService {
-    List<Deliveryman> getAllDeliverymen() throws IOException;
-    Deliveryman getDeliverymanById(String id) throws IOException;
-    void addDeliveryman(Deliveryman deliveryman) throws IOException;
-    void updateDeliveryman(String id, Deliveryman deliveryman) throws IOException;
-    void deleteDeliveryman(String id) throws IOException;
-    List<Deliveryman> searchDeliverymen(String query, String searchBy, String sortBy, boolean ascending) throws IOException;
+    List<Deliveryman> getAllDeliverymen() throws SQLException;
+    Deliveryman getDeliverymanById(String id) throws SQLException;
+    void addDeliveryman(Deliveryman deliveryman) throws SQLException;
+    void updateDeliveryman(String id, Deliveryman deliveryman) throws SQLException;
+    void deleteDeliveryman(String id) throws SQLException;
+    List<Deliveryman> searchDeliverymen(String query, String searchBy, String sortBy, boolean ascending) throws SQLException;
 }

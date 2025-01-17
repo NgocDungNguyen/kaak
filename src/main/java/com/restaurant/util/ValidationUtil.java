@@ -18,8 +18,8 @@ public class ValidationUtil {
         return address != null && address.trim().length() >= 5;
     }
 
-    public static boolean isValidVehicle(String vehicle) {
-        return vehicle != null && vehicle.trim().length() >= 2;
+    public static boolean isValidVehicleType(String vehicleType) {
+        return vehicleType != null && !vehicleType.trim().isEmpty();
     }
 
     public static boolean isValidPrice(double price) {

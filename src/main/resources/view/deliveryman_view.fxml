@@ -28,6 +28,7 @@
                     <TableColumn fx:id="phoneColumn" text="Phone"/>
                     <TableColumn fx:id="vehicleTypeColumn" text="Vehicle Type"/>
                     <TableColumn fx:id="statusColumn" text="Status"/>
+                    <TableColumn fx:id="emailColumn" text="Email"/>
                 </columns>
             </TableView>
         </VBox>

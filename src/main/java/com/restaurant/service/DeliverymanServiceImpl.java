@@ -3,7 +3,7 @@ package com.restaurant.service;
 import com.restaurant.dao.DeliverymanDAO;
 import com.restaurant.model.Deliveryman;
 import com.restaurant.util.ValidationUtil;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,19 +16,19 @@ public class DeliverymanServiceImpl implements DeliverymanService {
     }
 
     @Override
-    public List<Deliveryman> getAllDeliverymen() throws IOException {
+    public List<Deliveryman> getAllDeliverymen() throws SQLException {
         System.out.println("Service: Getting all deliverymen");
         return deliverymanDAO.findAll();
     }
 
     @Override
-    public Deliveryman getDeliverymanById(String id) throws IOException {
+    public Deliveryman getDeliverymanById(String id) throws SQLException {
         System.out.println("Service: Getting deliveryman by ID: " + id);
         return deliverymanDAO.findById(id);
     }
 
     @Override
-    public void addDeliveryman(Deliveryman deliveryman) throws IOException {
+    public void addDeliveryman(Deliveryman deliveryman) throws SQLException {
         System.out.println("Service: Adding deliveryman");
         validateDeliveryman(deliveryman);
         deliverymanDAO.create(deliveryman);
@@ -36,7 +36,7 @@ public class DeliverymanServiceImpl implements DeliverymanService {
     }
 
     @Override
-    public void updateDeliveryman(String id, Deliveryman deliveryman) throws IOException {
+    public void updateDeliveryman(String id, Deliveryman deliveryman) throws SQLException {
         System.out.println("Service: Updating deliveryman with ID: " + id);
         validateDeliveryman(deliveryman);
         deliveryman.setId(id);
@@ -45,14 +45,14 @@ public class DeliverymanServiceImpl implements DeliverymanService {
     }
 
     @Override
-    public void deleteDeliveryman(String id) throws IOException {
+    public void deleteDeliveryman(String id) throws SQLException {
         System.out.println("Service: Deleting deliveryman with ID: " + id);
         deliverymanDAO.delete(id);
         System.out.println("Service: Deliveryman deleted successfully");
     }
 
     @Override
-    public List<Deliveryman> searchDeliverymen(String query, String searchBy, String sortBy, boolean ascending) throws IOException {
+    public List<Deliveryman> searchDeliverymen(String query, String searchBy, String sortBy, boolean ascending) throws SQLException {
         System.out.println("Service: Searching deliverymen - Query: " + query + ", SearchBy: " + searchBy + ", SortBy: " + sortBy + ", Ascending: " + ascending);
         List<Deliveryman> deliverymen = deliverymanDAO.findAll();
 
@@ -83,8 +83,11 @@ public class DeliverymanServiceImpl implements DeliverymanService {
         if (!ValidationUtil.isValidPhone(deliveryman.getPhone())) {
             throw new IllegalArgumentException("Invalid phone number");
         }
-        if (!ValidationUtil.isValidVehicle(deliveryman.getVehicleType())) {
-            throw new IllegalArgumentException("Invalid vehicle information");
+        if (!ValidationUtil.isValidEmail(deliveryman.getEmail())) {
+            throw new IllegalArgumentException("Invalid email address");
+        }
+        if (!ValidationUtil.isValidVehicleType(deliveryman.getVehicleType())) {
+            throw new IllegalArgumentException("Invalid vehicle type");
         }
     }
 }
