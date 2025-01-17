@@ -15,6 +15,11 @@ public class DeliverymanServiceImpl implements DeliverymanService {
         this.deliverymanDAO = new DeliverymanDAO();
     }
 
+    // For testing purposes
+    DeliverymanServiceImpl(DeliverymanDAO deliverymanDAO) {
+        this.deliverymanDAO = deliverymanDAO;
+    }
+
     @Override
     public List<Deliveryman> getAllDeliverymen() throws SQLException {
         System.out.println("Service: Getting all deliverymen");

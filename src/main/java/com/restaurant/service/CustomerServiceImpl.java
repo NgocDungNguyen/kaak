@@ -16,6 +16,11 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerDAO = new CustomerDAO();
     }
 
+    // For testing purposes
+    CustomerServiceImpl(CustomerDAO customerDAO) {
+        this.customerDAO = customerDAO;
+    }
+
     @Override
     public List<Customer> getAllCustomers() throws SQLException {
         System.out.println("Service: Getting all customers");

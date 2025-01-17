@@ -21,6 +21,12 @@ public class OrderServiceImpl implements OrderService {
         return orderDAO.findAll();
     }
 
+    // For testing purposes
+    OrderServiceImpl(OrderDAO orderDAO) {
+        this.orderDAO = orderDAO;
+    }
+
+
     @Override
     public Order getOrderById(String id) throws SQLException {
         System.out.println("Service: Getting order by ID: " + id);

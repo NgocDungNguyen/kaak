@@ -16,6 +16,11 @@ public class ItemServiceImpl implements ItemService {
         this.itemDAO = new ItemDAO();
     }
 
+    // For testing purposes
+    ItemServiceImpl(ItemDAO itemDAO) {
+        this.itemDAO = itemDAO;
+    }
+
     @Override
     public List<Item> getAllItems() throws SQLException {
         System.out.println("Service: Getting all items");
