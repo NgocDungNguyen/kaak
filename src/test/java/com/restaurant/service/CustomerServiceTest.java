@@ -54,13 +54,11 @@ class CustomerServiceTest {
     @Test
     void testAddCustomer() throws SQLException {
         Customer customerToAdd = TestUtils.createSampleCustomer();
-
-        doNothing().when(customerDAO).create(any(Customer.class));
-
+        when(customerDAO.create(any(Customer.class))).thenReturn(customerToAdd);
         customerService.addCustomer(customerToAdd);
-
         verify(customerDAO).create(customerToAdd);
     }
+
 
     @Test
     void testUpdateCustomer() throws SQLException {

@@ -54,13 +54,11 @@ class ItemServiceTest {
     @Test
     void testAddItem() throws SQLException {
         Item itemToAdd = TestUtils.createSampleItem();
-
-        doNothing().when(itemDAO).create(any(Item.class));
-
+        when(itemDAO.create(any(Item.class))).thenReturn(itemToAdd);
         itemService.addItem(itemToAdd);
-
         verify(itemDAO).create(itemToAdd);
     }
+
 
     @Test
     void testUpdateItem() throws SQLException {

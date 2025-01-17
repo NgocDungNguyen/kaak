@@ -55,11 +55,8 @@ class OrderServiceTest {
     @Test
     void testAddOrder() throws SQLException {
         Order orderToAdd = TestUtils.createSampleOrder();
-
-        doNothing().when(orderDAO).create(any(Order.class));
-
+        when(orderDAO.create(any(Order.class))).thenReturn(orderToAdd);
         orderService.addOrder(orderToAdd);
-
         verify(orderDAO).create(orderToAdd);
     }
 

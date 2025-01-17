@@ -54,11 +54,8 @@ class DeliverymanServiceTest {
     @Test
     void testAddDeliveryman() throws SQLException {
         Deliveryman deliverymanToAdd = TestUtils.createSampleDeliveryman();
-
-        doNothing().when(deliverymanDAO).create(any(Deliveryman.class));
-
+        when(deliverymanDAO.create(any(Deliveryman.class))).thenReturn(deliverymanToAdd);
         deliverymanService.addDeliveryman(deliverymanToAdd);
-
         verify(deliverymanDAO).create(deliverymanToAdd);
     }
 
