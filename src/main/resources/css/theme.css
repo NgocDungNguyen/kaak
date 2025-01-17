@@ -1,0 +1,119 @@
+/*/css/theme.css*/
+
+
+/* Theme colors */
+* {
+    -primary-color: #3498db;
+    -primary-dark: #2980b9;
+    -secondary-color: #2c3e50;
+    -secondary-dark: #233140;
+    -success-color: #2ecc71;
+    -warning-color: #f1c40f;
+    -danger-color: #e74c3c;
+    -info-color: #3498db;
+    -light-gray: #f5f5f5;
+    -medium-gray: #95a5a6;
+    -dark-gray: #7f8c8d;
+}
+
+/* Status indicators */
+.status-pending {
+    -fx-text-fill: -warning-color;
+}
+
+.status-processing {
+    -fx-text-fill: -info-color;
+}
+
+.status-completed {
+    -fx-text-fill: -success-color;
+}
+
+.status-cancelled {
+    -fx-text-fill: -danger-color;
+}
+
+/* Custom components */
+.card {
+    -fx-background-color: white;
+    -fx-padding: 15px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 3);
+}
+
+.navigation-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10px 15px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.navigation-button:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+}
+
+.navigation-button:selected {
+    -fx-background-color: -primary-color;
+}
+
+/* Charts and graphs */
+.chart {
+    -fx-padding: 10px;
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: #ecf0f1;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #ecf0f1;
+}
+
+.default-color0.chart-series-line { -fx-stroke: -primary-color; }
+.default-color1.chart-series-line { -fx-stroke: -success-color; }
+.default-color2.chart-series-line { -fx-stroke: -warning-color; }
+.default-color3.chart-series-line { -fx-stroke: -danger-color; }
+
+/* Notifications */
+.notification {
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 3);
+}
+
+.notification-success {
+    -fx-border-color: -success-color;
+    -fx-border-width: 0 0 0 4px;
+}
+
+.notification-warning {
+    -fx-border-color: -warning-color;
+    -fx-border-width: 0 0 0 4px;
+}
+
+.notification-error {
+    -fx-border-color: -danger-color;
+    -fx-border-width: 0 0 0 4px;
+}
+
+/* Scrollbars */
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12px;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #bdc3c7;
+    -fx-background-radius: 6px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #95a5a6;
+}

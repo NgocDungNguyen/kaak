@@ -1,0 +1,6 @@
+id,name,phone,email,status,vehicleType,licenseNumber,joinDate,totalDeliveries,rating,available
+DLV001,Mike Johnson,+1987654321,mike.j@email.com,ACTIVE,MOTORCYCLE,MC123456,2023-01-15,45,4.8,true
+DLV002,Sarah Brown,+1987654322,sarah.b@email.com,ACTIVE,BICYCLE,BC789012,2023-02-20,32,4.7,true
+DLV003,Tom Davis,+1987654323,tom.d@email.com,INACTIVE,CAR,CR345678,2023-03-10,28,4.5,false
+DLV004,Emily White,+1987654324,emily.w@email.com,ACTIVE,SCOOTER,SC901234,2023-04-01,15,4.9,true
+DLV005,David Lee,+1987654325,david.l@email.com,ACTIVE,MOTORCYCLE,MC567890,2023-05-05,5,4.6,true

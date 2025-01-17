@@ -1,0 +1,97 @@
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f0f0f0;
+}
+
+.top-bar {
+    -fx-background-color: #3498db;
+    -fx-padding: 10px;
+}
+
+.title-label {
+    -fx-text-fill: white;
+}
+
+.sidebar {
+    -fx-background-color: #2c3e50;
+    -fx-padding: 10px;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 10px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #34495e;
+}
+
+.content-area {
+    -fx-background-color: white;
+}
+
+.welcome-label {
+    -fx-font-size: 24px;
+}
+
+.content-pane {
+    -fx-background-color: white;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.search-field {
+    -fx-pref-width: 200px;
+}
+
+.combo-box {
+    -fx-pref-width: 150px;
+}
+
+.action-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-padding: 5px 10px;
+}
+
+.action-button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.data-table {
+    -fx-table-cell-border-color: transparent;
+}
+
+.data-table .column-header {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+
+.form-pane {
+    -fx-background-color: #ecf0f1;
+    -fx-padding: 10px;
+}
+
+.form-grid {
+    -fx-hgap: 10px;
+    -fx-vgap: 10px;
+}
+
+.check-box {
+    -fx-padding: 5px;
+}
+
+.total-label {
+    -fx-font-weight: bold;
+}
+
+.list-view {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+}

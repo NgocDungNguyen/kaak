@@ -1,0 +1,8 @@
+id,name,category,price,description,preparationTime,isAvailable,imageUrl,calories,spicyLevel
+ITM001,Margherita Pizza,PIZZA,12.99,"Classic tomato and mozzarella pizza",15,true,pizza_margherita.jpg,800,1
+ITM002,Chicken Burger,BURGER,9.99,"Grilled chicken with lettuce and mayo",10,true,chicken_burger.jpg,650,2
+ITM003,Caesar Salad,SALAD,8.99,"Fresh romaine lettuce with caesar dressing",5,true,caesar_salad.jpg,320,0
+ITM004,Spaghetti Carbonara,PASTA,14.99,"Creamy pasta with bacon and eggs",20,true,carbonara.jpg,750,1
+ITM005,Vegetable Stir Fry,MAIN,11.99,"Mixed vegetables in soy sauce",12,true,veggie_stirfry.jpg,400,2
+ITM006,Chocolate Brownie,DESSERT,6.99,"Rich chocolate brownie with vanilla ice cream",5,true,choco_brownie.jpg,450,0
+ITM007,Iced Latte,BEVERAGE,4.99,"Chilled espresso with milk",3,true,iced_latte.jpg,120,0
