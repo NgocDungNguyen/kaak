@@ -2,30 +2,23 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="mainBorderPane" fx:controller="com.restaurant.controller.MainController" xmlns:fx="http://javafx.com/fxml" stylesheets="@../css/styles.css">
+<BorderPane fx:id="mainBorderPane" fx:controller="com.cinema.controller.MainController"
+            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17"
+            stylesheets="@../css/styles.css">
     <top>
-        <HBox styleClass="top-bar">
-            <Label text="Restaurant Management System" styleClass="title-label">
-                <font>
-                    <Font name="System Bold" size="20.0"/>
-                </font>
-            </Label>
-        </HBox>
+        <MenuBar>
+            <Menu text="Manage">
+                <MenuItem text="Users" onAction="#handleUsers"/>
+                <MenuItem text="Theaters" onAction="#handleTheaters"/>
+                <MenuItem text="Screens" onAction="#handleScreens"/>
+                <MenuItem text="Bookings" onAction="#handleBookings"/>
+            </Menu>
+        </MenuBar>
     </top>
-    <left>
-        <VBox styleClass="sidebar">
-            <Button text="Customers" onAction="#handleCustomers" styleClass="sidebar-button"/>
-            <Button text="Orders" onAction="#handleOrders" styleClass="sidebar-button"/>
-            <Button text="Items" onAction="#handleItems" styleClass="sidebar-button"/>
-            <Button text="Deliverymen" onAction="#handleDeliverymen" styleClass="sidebar-button"/>
-        </VBox>
-    </left>
     <center>
-        <StackPane fx:id="contentArea" styleClass="content-area">
-            <Label text="Welcome to Restaurant Management System" styleClass="welcome-label"/>
+        <StackPane>
+            <Label text="Welcome to Movie Ticket Reservation System" styleClass="welcome-label"/>
         </StackPane>
     </center>
 </BorderPane>

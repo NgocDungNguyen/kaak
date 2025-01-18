@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17"
+      fx:controller="com.cinema.controller.BookingController" stylesheets="@../css/styles.css">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Booking Management" styleClass="section-title"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <TextField fx:id="searchField" promptText="Search bookings..." styleClass="search-field"/>
+        <ComboBox fx:id="searchByComboBox" promptText="Search By" styleClass="combo-box"/>
+        <ComboBox fx:id="sortByComboBox" promptText="Sort By" styleClass="combo-box"/>
+        <CheckBox fx:id="ascendingCheckBox" text="Ascending" styleClass="check-box"/>
+        <Button text="Search" onAction="#handleSearch" styleClass="action-button"/>
+    </HBox>
+
+    <TableView fx:id="bookingTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID"/>
+            <TableColumn fx:id="userColumn" text="User"/>
+            <TableColumn fx:id="movieColumn" text="Movie"/>
+            <TableColumn fx:id="showTimeColumn" text="Show Time"/>
+            <TableColumn fx:id="seatsColumn" text="Seats"/>
+            <TableColumn fx:id="totalPriceColumn" text="Total Price"/>
+        </columns>
+    </TableView>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="User:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <ComboBox fx:id="userComboBox" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <Label text="Screen:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <ComboBox fx:id="screenComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <Label text="Seats:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <TextField fx:id="seatsField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="addButton" text="Add" onAction="#handleAdd" styleClass="action-button"/>
+        <Button fx:id="updateButton" text="Update" onAction="#handleUpdate" styleClass="action-button"/>
+        <Button fx:id="deleteButton" text="Delete" onAction="#handleDelete" styleClass="action-button"/>
+    </HBox>
+</VBox>
